@@ -1,0 +1,104 @@
+{
+  "project_info": {
+    "project_number": "298136038674",
+    "firebase_url": "https://respberry3-7f2c3.firebaseio.com",
+    "project_id": "respberry3-7f2c3",
+    "storage_bucket": "respberry3-7f2c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298136038674:android:8cc48280312aabc9",
+        "android_client_info": {
+          "package_name": "com.a20170208.tranvanhay.respberry3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "298136038674-j8vs9mhjgh4lkcv55j5bmc1vgm1eaitt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZHSjXPkbs_2YujMxmr0fUd6IcdXSTdSw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298136038674:android:843c7bb1295352bc",
+        "android_client_info": {
+          "package_name": "com.a20170208.tranvanhay.androidthingsformobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "298136038674-j8vs9mhjgh4lkcv55j5bmc1vgm1eaitt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZHSjXPkbs_2YujMxmr0fUd6IcdXSTdSw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:298136038674:android:2306f9c19bfd06e9",
+        "android_client_info": {
+          "package_name": "com.a20170208.tranvanhay.appat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "298136038674-j8vs9mhjgh4lkcv55j5bmc1vgm1eaitt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZHSjXPkbs_2YujMxmr0fUd6IcdXSTdSw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
