@@ -44,4 +44,52 @@
         android:layout_toEndOf="@+id/buttonYes"
         android:layout_marginTop="64dp"
         android:id="@+id/textTime" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Email"
+        android:ems="10"
+        android:layout_below="@+id/textTime"
+        android:layout_alignStart="@+id/buttonYes"
+        android:layout_marginTop="32dp"
+        android:id="@+id/editTextEmail" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Password"
+        android:ems="10"
+        android:layout_below="@+id/editTextEmail"
+        android:layout_alignStart="@+id/editTextEmail"
+        android:layout_marginTop="19dp"
+        android:id="@+id/editTextPassword" />
+
+    <Button
+        android:text="Đăng ký"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editTextPassword"
+        android:layout_toStartOf="@+id/textTime"
+        android:layout_marginTop="21dp"
+        android:id="@+id/buttonDangKy" />
+
+    <Button
+        android:text="Đăng nhập"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/buttonDangKy"
+        android:layout_alignEnd="@+id/editTextPassword"
+        android:id="@+id/buttonDangNhap" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:id="@+id/textViewResult" />
 </RelativeLayout>
