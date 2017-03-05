@@ -25,7 +25,7 @@ public class BoardDefaults {
             case DEVICE_EDISON:
                 return "GP45";
             case DEVICE_RPI3:
-                return "BCM6";
+                return "BCM21";
             case DEVICE_NXP:
                 return "GPIO4_IO20";
             default:
