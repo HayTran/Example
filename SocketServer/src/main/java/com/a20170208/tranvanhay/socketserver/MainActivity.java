@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -81,11 +82,12 @@ public class MainActivity extends Activity {
                 });
                 while (true) {
                     Socket socket = serverSocket.accept();
+                    socket.setSoTimeout(10000);
                     // Increase count variable
                     count++;
+                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
                     // Read data from Client
                     if(!socket.isClosed() || !socket.isConnected() || !socket.isInputShutdown()) {
-                        DataInputStream dIn = new DataInputStream(socket.getInputStream());
                         A = dIn.readByte();
                         B = dIn.readByte();
                         message = "A = " + A + "\nB = " + B;
@@ -99,6 +101,14 @@ public class MainActivity extends Activity {
                         });
                     }
                     else{
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Update msg in UI Thread/ Main Thread
+                                Toast.makeText(MainActivity.this,"Socket time out",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        dIn.close();
                         socket.close();
                     }
                     // Initialize a SocketServerReplyThread object
@@ -109,7 +119,13 @@ public class MainActivity extends Activity {
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Update msg in UI Thread/ Main Thread
+                        Toast.makeText(MainActivity.this,"Socket time out",Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }
     }
