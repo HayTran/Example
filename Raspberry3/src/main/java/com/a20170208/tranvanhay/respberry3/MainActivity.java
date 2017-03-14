@@ -23,23 +23,24 @@ import java.text.SimpleDateFormat;
  */
 
 public class MainActivity extends Activity {
-    DatabaseReference mData;
-    private Handler mHandler = new Handler();
-    //Authenication
+    // Instance for Realtime Database
+    DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
+    // Instances for Authentication
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseAuth mAuth;
-    ServerSocket serverSocket;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    // Instance for a handler
+    private Handler mHandler = new Handler();
+    // Instance for creation a Server Socket
+    protected ServerSocket serverSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mData = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
         signIn();
         checkAccount();
         mHandler.post(showCurrentTime);
-        Thread serverSocketThread = new Thread(new SocketServerListeningThread(serverSocket));
+        Thread serverSocketThread = new Thread(new SocketServerThread(serverSocket));
         serverSocketThread.start();
     }
     @Override
@@ -57,7 +58,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Used for shut down socket current running
+        // Used for shut down socket current running when app destroy
         if (serverSocket != null) {
             try {
                 serverSocket.close();
@@ -75,25 +76,10 @@ public class MainActivity extends Activity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            mData.child("Sign-in:").push().setValue("Success");
+                            mData.child("Sign-in:").setValue("Success");
                         }
                         else{
-                            mData.child("Sign-in:").push().setValue("Not success");
-                        }
-                    }
-                });
-    }
-    private void signUp() {
-        String email = "abcd@gmail.com";
-        String password = "vanhay2021";
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            mData.child("Sign-up:").push().setValue("Create a new user successfully");
-                        }else {
-                            mData.child("Sign-up:").push().setValue("Can not create a new user");
+                            mData.child("Sign-in:").setValue("Not success");
                         }
                     }
                 });
@@ -104,9 +90,9 @@ public class MainActivity extends Activity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    mData.child("Sign-in:").push().setValue("User existing:" + user.getEmail());
+                    mData.child("Check account:").setValue("User existing:" + user.getEmail());
                 } else {
-                    mData.child("Sign-in:").push().setValue("User not existing");
+                    mData.child("Check account:").setValue("User not existing");
                 }
             }
         };
@@ -121,5 +107,4 @@ public class MainActivity extends Activity {
                 mHandler.postDelayed(showCurrentTime,1000);
         }
     };
-
 }
