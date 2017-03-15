@@ -1,4 +1,5 @@
 package com.a20170208.tranvanhay.respberry3;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -20,17 +21,19 @@ public class SocketServerThread extends Thread {
     private DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
     static final int SocketServerPORT = 8080;
     int count1 = 0, count2 = 0;
-    String message1 = "", message2="";
+    String message ="";
     ServerSocket serverSocket;
     SocketServerThread (ServerSocket serverSocket){
         this.serverSocket = serverSocket;
     }
-    int A = 0 , B = 0 , C = 0;
+    int flameValue0 = 0, flameValue1 = 0, lux0 = 0, lux1 = 0, humiditySolid0 = 0,humiditySolid1 = 0;
+    int temperature = 0, humidity = 0, lux = 0;
+    float flameValue = 0, humditySolid = 0;
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket(SocketServerPORT);
-            mData.child("SocketServer").child("Notify").setValue("IP:"+this.getIpAddress()+":"+serverSocket.getLocalPort());
+            mData.child("SocketServer").child("zNotify").setValue("IP:"+this.getIpAddress()+":"+serverSocket.getLocalPort());
             while (true) {
                 count1 ++;
                 count2 ++;
@@ -39,33 +42,29 @@ public class SocketServerThread extends Thread {
                 }
                 Socket socket = serverSocket.accept();
                 DataInputStream dIn = new DataInputStream(socket.getInputStream());
-                if(dIn.available() == 0) {
-                    // Read three value sent from ESP
-                    A = dIn.readByte();
-                    B = dIn.readByte();
-                    C = dIn.readByte();
-                    // Convert signed byte into integer
-                    if(A < 0){
-                        int tmp = A & 0x7f;
-                        A = tmp + 128;
-                    }
-                    if(B < 0){
-                        int tmp = B & 0x7f;
-                        B = tmp + 128;
-                    }
-                    if(C < 0){
-                        int tmp = C & 0x7f;
-                        C = tmp + 128;
-                    }
-                    message1 = "A=" + A + ",B=" + B + ",C=" + C;
-                    message2 = "IP:" + socket.getInetAddress() + ",Counter1: " + count1+ ",Counter2: " + count2;
-                    mData.child("SocketServer").child("Message1").setValue(message1);
-                    mData.child("SocketServer").child("Message2").setValue(message2);
-                }
-                else{
-                    dIn.close();
-                    socket.close();
-                }
+                // Read three value sent from ESP
+                humidity = dIn.readUnsignedByte();
+                temperature = dIn.readUnsignedByte();
+                flameValue0 = dIn.readUnsignedByte();
+                flameValue1 = dIn.readUnsignedByte();
+                lux0 = dIn.readUnsignedByte();
+                lux1 = dIn.readUnsignedByte();
+                humiditySolid0 = dIn.readUnsignedByte();
+                humiditySolid1 = dIn.readUnsignedByte();
+                // Convert value
+                flameValue = byteToInt(flameValue0,flameValue1);
+                flameValue = 100 - (flameValue/1024)*100;
+                lux = byteToInt(lux0,lux1);
+                humditySolid = byteToInt(humiditySolid0,humiditySolid1);
+                humditySolid = 100 - (humditySolid/1024)*100;
+                // Send to Firebase
+                message = "IP:" + socket.getInetAddress() + ",Counter1: " + count1+ ",Counter2: " + count2 +"             ";
+                mData.child("SocketServer").child("Humidity").setValue(humidity+" %      ");
+                mData.child("SocketServer").child("Temperature").setValue(temperature+" Celius        ");
+                mData.child("SocketServer").child("Flame Sensor").setValue(flameValue+" %        ");
+                mData.child("SocketServer").child("Light").setValue(lux+" lux        ");
+                mData.child("SocketServer").child("Humidity Solid").setValue(humditySolid+" %         ");
+                mData.child("SocketServer").child("zMessage").setValue(message);
                 // Initialize a SocketServerReplyThread object
                 SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(
                         socket, count1);
@@ -127,6 +126,9 @@ public class SocketServerThread extends Thread {
                 mData.child("Error").setValue(e.toString());
             }
         }
+    }
+    private int byteToInt(int byteZero, int byteOne){
+        return byteZero+ byteOne*256;
     }
 }
 
