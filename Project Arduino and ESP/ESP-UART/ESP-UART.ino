@@ -11,30 +11,36 @@ int status = WL_IDLE_STATUS;
 
 // Variable for connect to Socket Server
 const uint16_t port = 8080;         
-const char * host = "192.168.1.250"; 
+const char * host = "192.168.1.200"; 
 
-// Variable for storing data sent and received
-byte hay = 127;
-byte nhung = 127;
-byte valueR = 0;
-uint8_t *valueReturn = 0;
-bool a = 1;
-byte count = 0;
+// Variable for storing data sent to Raspberry
+byte humidity = 0;
+byte temperature = 0;
+byte flameValue0 = 0; 
+byte flameValue1 = 0;
+byte lux0 = 0;
+byte lux1 = 0;
+byte humiditySolid0 = 0;
+byte humiditySolid1 = 0;
+
+int countOfServer = -1;
+int countAtCurrent = 0;
+int countOfESP = 0;
 
 // Variable sleep time for ESP8266
 const int sleepTimeS = 100;
 
 void setup() {   
-    serialSetUp();
     wifiSetUp();
-//    runSerial();
-//    runWifi();
-//    ESP.deepSleep(5000000);
+    serialSetUp();
+    runWifi();
+    runSerial();
+//    ESP.deepSleep(1000000);
 }
 void loop() {
     runSerial();
     runWifi();
-    delay(200);
+    delay(2000);
 }
 
 void wifiSetUp(){
@@ -57,15 +63,6 @@ void runWifi(){
     // Use WiFiClient class to create TCP connections
     WiFiClient client;
     //Increase counter variable 
-    hay++;
-    if(hay >= 255){
-      hay = 0;
-    }
-    nhung --;
-    if(nhung <= 0){
-      nhung = 255;
-    }
-    // Connect to server
     delay(30);
     Serial.println("Connecting to server socket: ");
     Serial.println(host);
@@ -74,26 +71,38 @@ void runWifi(){
        delay(300);
     }
     // Ready to send data to server
-    delay(20);
+    delay(10);
     client.flush();
-    client.write(hay); 
+    client.write(humidity);
     client.flush();
-    client.write(nhung);
+    client.write(temperature);
     client.flush();
-    client.write(valueR);
+    client.write(flameValue0);
     client.flush();
-    Serial.print("Hay = ");
-    Serial.println(hay,DEC);
-    Serial.print("Nhung = ");
-    Serial.println(nhung,DEC);
+    client.write(flameValue1);
+    client.flush();
+    client.write(lux0);
+    client.flush();
+    client.write(lux1);
+    client.flush();
+    client.write(humiditySolid0);
+    client.flush();
+    client.write(humiditySolid1);
+    client.flush();
+    delay(30);
     // Ready to read data sent from server
-    delay(20);
     while(client.available()){
-      count = client.read();
-      Serial.print("========================================  count = ");
-      Serial.println(count,DEC);
+      countOfServer = client.read();
+      Serial.print("========================================  countOfServer = ");
+      Serial.println(countOfServer,DEC);
+      if(countAtCurrent != countOfServer){
+        countOfESP++;
+      }
+      countAtCurrent = countOfServer;
     }
+    delay(5);
     Serial.println("closing connection");
+//    client.end();
     client.stop();
 }
 void serialSetUp(){
@@ -103,11 +112,28 @@ void serialSetUp(){
 void runSerial(){
   // Begin communicate serial
     if (mySerial.available()) { 
-       valueR = mySerial.read();   
-       mySerial.write(count);
+       temperature = mySerial.read();   
+       humidity = mySerial.read();
+       flameValue0 = mySerial.read();
+       flameValue1 = mySerial.read();
+       lux0 = mySerial.read();
+       lux1 = mySerial.read();
+       humiditySolid0 = mySerial.read();
+       humiditySolid1 = mySerial.read();
     }
+     if(countOfServer >=0){
+           mySerial.write(countOfServer);
+       }
     mySerial.flush(); // This action will refresh buffer in serial communication
-    Serial.print("ValueR = ");
-    Serial.println(valueR,DEC);
+    Serial.print("Temperature: ");
+    Serial.println(temperature);
+    Serial.print("Humidity: ");
+    Serial.println(humidity);
+    Serial.print("Flame: ");
+    Serial.println(flameValue0,DEC);
+    Serial.print("Flame: ");
+    Serial.println(flameValue1,DEC);
+    Serial.print("Light: ");
+    Serial.println(lux0,DEC);
 }
 
