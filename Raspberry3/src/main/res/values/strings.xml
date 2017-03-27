@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">Respberry3</string>
+    <string name="app_name">Raspberry 3 --- Android Things 24/03/2017</string>
+    <string name="sensor0">Temperature</string>
+    <string name="sensor1">Humidity</string>
+    <string name="sensor2">Flame</string>
+    <string name="sensor3">Humidity Solid</string>
+    <string name="sensor4">Light Intensity</string>
 </resources>
