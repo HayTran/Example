@@ -54,6 +54,7 @@ public class OperatingActivity extends Activity {
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageRef = storage.getReference();
     int count = 0;
+    String linkURL = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,7 @@ public class OperatingActivity extends Activity {
         public void run() {
             mCamera.takePicture();
             Log.d(TAG,"Run runnableTakePicture");
-            mTakePicture.postDelayed(runnableTakePicture,300000);
+            mTakePicture.postDelayed(runnableTakePicture,5000);
         }
     };
     private void upLoadImage( byte[] data){
@@ -144,6 +145,8 @@ public class OperatingActivity extends Activity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                linkURL  = downloadUrl + "";
+                mData.child("Storage Image").setValue(linkURL);
                 Log.d(TAG,"Upload Image successfully ");
             }
         });

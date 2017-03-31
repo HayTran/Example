@@ -3,6 +3,7 @@ package com.a20170208.tranvanhay.respberry3;
 /**
  * Created by Tran Van Hay on 3/25/2017.
  */
+
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -29,8 +30,8 @@ import static android.content.Context.CAMERA_SERVICE;
 public class CameraRaspi {
     private static final String TAG = CameraRaspi.class.getSimpleName();
 
-    private static final int IMAGE_WIDTH = 1080;
-    private static final int IMAGE_HEIGHT = 720;
+    private static final int IMAGE_WIDTH = 640;
+    private static final int IMAGE_HEIGHT = 480;
     private static final int MAX_IMAGES = 1;
 
     private CameraDevice mCameraDevice;
