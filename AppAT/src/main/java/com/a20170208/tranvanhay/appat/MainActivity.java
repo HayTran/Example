@@ -1,13 +1,14 @@
 package com.a20170208.tranvanhay.appat;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,86 +21,63 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class MainActivity extends AppCompatActivity {
     DatabaseReference mData;
-    TextView textView;
-    Button buttonYes;
-    Button buttonNo;
-    TextView textTime;
-
-
-    // Authenication instance
-
-    EditText editTextEmail, editTextPassword;
-    Button btnDangNhap, btnDangKy;
-    TextView textViewResult;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
+
+    TextView textViewTimeAndDate, textViewLink;
+    ImageView imageView;
+    Bitmap bitmap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mapping();
+        logIn();
+        checkAccount();
+        showTimeAndDate();
+        checkStorage();
+    }
+    private class LoadImage extends AsyncTask<String, Integer,String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                URL  url = new URL(strings[0]);
+                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+               //Toast.makeText(MainActivity.this, "URL= " + strings[0], Toast.LENGTH_SHORT).show();
+            } catch (MalformedURLException e) {
+                Log.d("LoadImage","MaformedURL " + e.getMessage());
+            } catch (IOException e) {
+                Log.d("LoadImage","IOException " + e.getMessage());
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(String s) {
+            imageView.setImageBitmap(bitmap);
+          //  Toast.makeText(MainActivity.this, "Load finish", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void mapping(){
         // Define instance for firebase connection
         mData = FirebaseDatabase.getInstance().getReference();
-
-        // Define instances for Main activity
-        textView = (TextView)findViewById(R.id.textView);
-        buttonYes = (Button)findViewById(R.id.buttonYes);
-        buttonNo = (Button)findViewById(R.id.buttonNo);
-        textTime = (TextView)findViewById(R.id.textTime);
-
-        // Authenication instance
-        editTextEmail = (EditText)findViewById(R.id.editTextEmail);
-        editTextPassword = (EditText)findViewById(R.id.editTextPassword);
-        btnDangKy = (Button)findViewById(R.id.buttonDangKy);
-        btnDangNhap = (Button)findViewById(R.id.buttonDangNhap);
-        textViewResult = (TextView)findViewById(R.id.textViewResult);
-
         // Initial mAuth for Authenication methods
         mAuth = FirebaseAuth.getInstance();
-
-        // Listen user
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Toast.makeText(MainActivity.this,"User = " + user.getUid(),Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this,"Not user",Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        };
-
-        //Implement sign-up
-        btnDangKy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dangKy();
-            }
-        });
-
-        // Implement sign-in
-        btnDangNhap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    Toast.makeText(MainActivity.this,"User = "  + user.getEmail(),Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this,"No user sign-in",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        //Set value over firebase database
-        mData.child("LED").setValue("Intial");
-        mData.addValueEventListener(new ValueEventListener() {
+        textViewTimeAndDate = (TextView)findViewById(R.id.textViewTimeAndDate);
+        textViewLink = (TextView)findViewById(R.id.textViewLink);
+        imageView = (ImageView)findViewById(R.id.imageView);
+    }
+    private void showTimeAndDate(){
+        mData.child("At Current").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                textView.setText(dataSnapshot.child("LED").getValue().toString());
-                textTime.setText(dataSnapshot.child("At Current").getValue().toString());
+                textViewTimeAndDate.setText(dataSnapshot.getValue().toString());
             }
 
             @Override
@@ -107,68 +85,70 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        buttonYes.setOnClickListener(new View.OnClickListener() {
+    }
+    private void checkStorage(){
+        mData.child("Storage Image").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View view) {
-                mData.child("LED").setValue("Yes button", new DatabaseReference.CompletionListener() {
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                textViewLink.setText(dataSnapshot.getValue().toString());
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError == null ){
-                            Toast.makeText(MainActivity.this,"Gửi lên thành công",Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Toast.makeText(MainActivity.this,"Gửi lên thất bại",Toast.LENGTH_SHORT).show();
-                        }
+                    public void run() {
+                        new LoadImage().execute(textViewLink.getText().toString());
                     }
                 });
             }
-        });
-        buttonNo.setOnClickListener(new View.OnClickListener() {
+
             @Override
-            public void onClick(View view) {
-                mData.child("LED").setValue("No button", new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        if(databaseError == null ){
-                            Toast.makeText(MainActivity.this,"Gửi lên thành công",Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Toast.makeText(MainActivity.this,"Gửi lên thất bại",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
     private void dangKy(){
-        String email = editTextEmail.getText().toString();
-        String password = editTextPassword.getText().toString();
+        String email = "tranvanhay@gmail.com";
+        String password = "vanhay2020";
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            Toast.makeText(MainActivity.this,"Đăng ký thành công",Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(MainActivity.this,"Đăng ký thành công",Toast.LENGTH_SHORT).show();
                         }else{
-                            Toast.makeText(MainActivity.this,"Đăng ký thất bại",Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(MainActivity.this,"Đăng ký thất bại",Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-    private void signIn(){
-        String email = editTextEmail.getText().toString();
-        String password = editTextPassword.getText().toString();
+    private void logIn(){
+        String email = "tranvanhay@gmail.com";
+        String password = "vanhay2020";
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            Toast.makeText(MainActivity.this,"Sign in successfull",Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(MainActivity.this,"Sign in successfull",Toast.LENGTH_SHORT).show();
                         }else{
-                            Toast.makeText(MainActivity.this,"Sign in failed",Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(MainActivity.this,"Sign in failed",Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+    }
+    private void checkAccount(){
+        // Listen user
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                   // Toast.makeText(MainActivity.this,"User = " + user.getUid(),Toast.LENGTH_SHORT).show();
+                } else {
+                 //   Toast.makeText(MainActivity.this,"Not user",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        };
     }
     @Override
     public void onStart() {
