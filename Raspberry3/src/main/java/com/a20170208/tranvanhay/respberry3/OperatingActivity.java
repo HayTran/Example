@@ -1,6 +1,8 @@
 package com.a20170208.tranvanhay.respberry3;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
@@ -18,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,6 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -37,6 +41,7 @@ import java.nio.ByteBuffer;
 
 public class OperatingActivity extends Activity {
     private static final String TAG = OperatingActivity.class.getSimpleName();
+    private static int TIME_TAKE_PICTURE = 10000;
     // Instance for Realtime Database
     DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
     // Instances for Authentication
@@ -67,6 +72,7 @@ public class OperatingActivity extends Activity {
         new TimeAnDate().showCurrentTime();
         displayInMonitor();
         doCaptureAction();
+        mCamera.dumpFormatInfo(OperatingActivity.this);
     }
     @Override
     public void onStart() {
@@ -106,18 +112,35 @@ public class OperatingActivity extends Activity {
         mCamera = CameraRaspi.getInstance();
         mCamera.initializeCamera(this, mCameraHandler, mOnImageAvailableListener);
         mTakePicture.post(runnableTakePicture);
+        // Take time to take picture in Firebase
+        mData.child("TIME_TAKE_PICTURE").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                TIME_TAKE_PICTURE = Integer.valueOf(dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
     private ImageReader.OnImageAvailableListener mOnImageAvailableListener =
             new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
                     Image image = reader.acquireLatestImage();
-                    // get image bytes
+                        // get image bytes
                     ByteBuffer imageBuf = image.getPlanes()[0].getBuffer();
                     final byte[] imageBytes = new byte[imageBuf.remaining()];
                     imageBuf.get(imageBytes);
                     image.close();
-                    upLoadImage(imageBytes);
+                        // compress byte to byte
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+                    upLoadImage(byteArray);
                 }
             };
 
@@ -127,12 +150,11 @@ public class OperatingActivity extends Activity {
         public void run() {
             mCamera.takePicture();
             Log.d(TAG,"Run runnableTakePicture");
-            mTakePicture.postDelayed(runnableTakePicture,5000);
+            mTakePicture.postDelayed(runnableTakePicture,TIME_TAKE_PICTURE);
         }
     };
     private void upLoadImage( byte[] data){
-        count++;
-        StorageReference mountainsRef = storageRef.child("mountains" + count + ".jpg");
+        StorageReference mountainsRef = storageRef.child("mountains1.jpg");
         UploadTask uploadTask = mountainsRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
