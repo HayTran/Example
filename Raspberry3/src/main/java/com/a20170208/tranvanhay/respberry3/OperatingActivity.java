@@ -13,14 +13,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,7 +30,7 @@ import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 
 /**
- * Created by Tran Van Hay on 3/24/2017.
+ * Created by Tran Van Hay on 4/22/2017.
  */
 
 public class OperatingActivity extends Activity {
@@ -44,9 +38,6 @@ public class OperatingActivity extends Activity {
     private static int TIME_TAKE_PICTURE = 10000;
     // Instance for Realtime Database
     DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-    // Instances for Authentication
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     // Instance for creation a Server Socket
     protected ServerSocket serverSocket;
     // Variable for display
@@ -60,50 +51,30 @@ public class OperatingActivity extends Activity {
     StorageReference storageRef = storage.getReference();
     int count = 0;
     String linkURL = "";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_operating);
-        logIn();
-        checkAccount();
+        mapping();
+        new TimeAnDate().showCurrentTime();
         Thread serverSocketThread = new Thread(new SocketServerThread(serverSocket));
         serverSocketThread.start();
-        new TimeAnDate().showCurrentTime();
         displayInMonitor();
-        doCaptureAction();
-        mCamera.dumpFormatInfo(OperatingActivity.this);
+        captureImage();
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mCamera.shutDown();
-        mCameraThread.quitSafely();
-        if (serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+    private void mapping() {
+        // mapping
+        txtSensor0 = (TextView)findViewById(R.id.txtSensor0);
+        txtSensor1 = (TextView)findViewById(R.id.txtSensor1);
+        txtSensor2 = (TextView)findViewById(R.id.txtSensor2);
+        txtSensor3 = (TextView)findViewById(R.id.txtSensor3);
+        txtSensor4 = (TextView)findViewById(R.id.txtSensor4);
+        txtTime = (TextView)findViewById(R.id.txtTime);
     }
     /**
      * These below method serve for capture and send image to firebase
      */
-    private  void doCaptureAction(){
+    private void captureImage(){
         // Creates new handlers and associated threads for camera and networking operations.
         mCameraThread = new HandlerThread("CameraBackground");
         mCameraThread.start();
@@ -130,12 +101,12 @@ public class OperatingActivity extends Activity {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
                     Image image = reader.acquireLatestImage();
-                        // get image bytes
+                    // get image bytes
                     ByteBuffer imageBuf = image.getPlanes()[0].getBuffer();
                     final byte[] imageBytes = new byte[imageBuf.remaining()];
                     imageBuf.get(imageBytes);
                     image.close();
-                        // compress byte to byte
+                    // compress byte to byte
                     Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -154,7 +125,8 @@ public class OperatingActivity extends Activity {
         }
     };
     private void upLoadImage( byte[] data){
-        StorageReference mountainsRef = storageRef.child("mountains1.jpg");
+        count++;
+        StorageReference mountainsRef = storageRef.child("RaspberryCamera").child("image"+count+".jpg");
         UploadTask uploadTask = mountainsRef.putBytes(data);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -173,17 +145,8 @@ public class OperatingActivity extends Activity {
             }
         });
     }
-    /**
-     * This method show value in monitor
-     */
+
     public void displayInMonitor(){
-        // mapping
-        txtSensor0 = (TextView)findViewById(R.id.txtSensor0);
-        txtSensor1 = (TextView)findViewById(R.id.txtSensor1);
-        txtSensor2 = (TextView)findViewById(R.id.txtSensor2);
-        txtSensor3 = (TextView)findViewById(R.id.txtSensor3);
-        txtSensor4 = (TextView)findViewById(R.id.txtSensor4);
-        txtTime = (TextView)findViewById(R.id.txtTime);
         // listen when Socket Server has change value then set new value
         mData.child("SocketServer").child("Temperature").addValueEventListener(new ValueEventListener() {
             @Override
@@ -207,7 +170,7 @@ public class OperatingActivity extends Activity {
 
             }
         });
-        mData.child("SocketServer").child("Flame").addValueEventListener(new ValueEventListener() {
+        mData.child("SocketServer").child("Flame 0").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 txtSensor2.setText(dataSnapshot.getValue().toString());
@@ -218,7 +181,7 @@ public class OperatingActivity extends Activity {
 
             }
         });
-        mData.child("SocketServer").child("Humidity Solid").addValueEventListener(new ValueEventListener() {
+        mData.child("SocketServer").child("Flame 1").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 txtSensor3.setText(dataSnapshot.getValue().toString());
@@ -252,36 +215,19 @@ public class OperatingActivity extends Activity {
         });
     }
 
-    /**
-     * These method for authentication
-     */
-    private void logIn(){
-        String email = "tranvanhay@gmail.com";
-        String pass = "vanhay2020";
-        mAuth.signInWithEmailAndPassword(email,pass)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            mData.child("Sign-in:").setValue("Success");
-                        }
-                        else{
-                            mData.child("Sign-in:").setValue("Not success");
-                        }
-                    }
-                });
-    }
-    private void checkAccount(){
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    mData.child("Check account:").setValue("User existing:" + user.getEmail());
-                } else {
-                    mData.child("Check account:").setValue("User not existing");
-                }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCamera.shutDown();
+        mCameraThread.quitSafely();
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-        };
+        }
     }
+
 }
