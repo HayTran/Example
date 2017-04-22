@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    android:background="#eeeeee"
+    android:keepScreenOn="true"
+    tools:context="com.a20170208.tranvanhay.appat.SignInActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        android:text="WELCOME TO APP AT"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="#05114d"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.8"
+        android:id="@+id/imageViewAppIconSignInActivity"
+        android:src="@drawable/ic_person_black_24dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:orientation="vertical"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:paddingBottom="20dp">
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:drawableStart="@drawable/ic_markunread_black_24dp"
+            android:id="@+id/editTextUsernameSignInActivity"
+            android:hint="Username"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:drawableStart="@drawable/ic_visibility_black_24dp"
+            android:id="@+id/editTextPasswordSignInActivity"
+            android:hint="Password"/>
+        <CheckBox
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.7"
+            android:layout_gravity="center"
+            android:textColor="#d9638e"
+            android:textSize="15sp"
+            android:id="@+id/checkBoxRememberSignInActivity"
+            android:text="Remember your account"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:id="@+id/btnLogInSignInActivity"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:background="#3936ab"
+            android:textColor="#fff"
+            android:text="Login your email" />
+    </LinearLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        android:gravity="center"
+        android:textSize="15sp"
+        android:textColor="#fff"
+        android:background="#208349"
+        android:layout_marginRight="60dp"
+        android:layout_marginLeft="60dp"
+        android:id="@+id/btnSignUpSignInActivity"
+        android:text="Create a new account"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:text="Forgot Password?"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:clickable="true"
+        android:id="@+id/textViewForgotPasswordSignInActivity" />
+</LinearLayout>
