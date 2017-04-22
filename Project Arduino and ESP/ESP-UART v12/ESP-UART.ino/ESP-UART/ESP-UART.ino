@@ -33,15 +33,17 @@ int countOfArduino = 0;
 // Variable sleep time for ESP8266
 const int sleepTimeS = 100;
 
-void setup() {   
+void setup() { 
+    Serial.begin(115200);
+    mySerial.begin(115200);
+      // D1 for UART communiation signal
+    pinMode(D1,OUTPUT);
+      // D2 for Wifi communication signal
+    pinMode(D2,OUTPUT);
     wifiSetUp();
-    serialSetUp();
-    runWifi();
-    runSerial();
-//    ESP.deepSleep(1000000);
 }
 void loop() {
-    runSerial();
+    comUART();
     runWifi();
     delay(1000);
 }
@@ -54,7 +56,10 @@ void wifiSetUp(){
     Serial.println(ssid);
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
-     delay(500);
+     digitalWrite(D2,HIGH);
+     delay(400);
+     digitalWrite(D2,LOW);
+     delay(100);
      Serial.print(".");
    }
     Serial.println("");
@@ -64,6 +69,7 @@ void wifiSetUp(){
 }
 void runWifi(){
     // Use WiFiClient class to create TCP connections
+    digitalWrite(D2,HIGH);
     WiFiClient client;
     //Increase counter variable 
     delay(30);
@@ -71,34 +77,43 @@ void runWifi(){
     Serial.println(host);
     while(!client.connect(host,port)){
        Serial.print(".");
-       delay(300);
+       digitalWrite(D2,HIGH);
     }
+    byte macAddr[6];  
+    WiFi.macAddress(macAddr);
+    Serial.print("MAC: ");
+    Serial.print(macAddr[5],HEX);
+    Serial.print(":");
+    Serial.print(macAddr[4],HEX);
+    Serial.print(":");
+    Serial.print(macAddr[3],HEX);
+    Serial.print(":");
+    Serial.print(macAddr[2],HEX);
+    Serial.print(":");
+    Serial.print(macAddr[1],HEX);
+    Serial.print(":");
+    Serial.println(macAddr[0],HEX);
     // Ready to send data to server
     delay(10);
     client.flush();
     client.write(humidity);
-    client.flush();
     client.write(temperature);
-    client.flush();
     client.write(flameValue0_0);
-    client.flush();
     client.write(flameValue0_1);
-    client.flush();
     client.write(flameValue1_0);
-    client.flush();
     client.write(flameValue1_1);
-    client.flush();
     client.write(lightIntensity0);
-    client.flush();
     client.write(lightIntensity1);
-    client.flush();
     client.write(mq2Value0);
-    client.flush();
     client.write(mq2Value1);
-    client.flush();
     client.write(mq7Value0);
-    client.flush();
     client.write(mq7Value1);
+    client.write(macAddr[5]);
+    client.write(macAddr[4]);
+    client.write(macAddr[3]);
+    client.write(macAddr[2]);
+    client.write(macAddr[1]);
+    client.write(macAddr[0]);
     client.flush();
     delay(30);
     // Ready to read data sent from server
@@ -108,13 +123,11 @@ void runWifi(){
     delay(5);
     Serial.println("closing connection");
     client.stop();
+    digitalWrite(D2,LOW);
 }
-void serialSetUp(){
-    Serial.begin(115200);
-    mySerial.begin(115200);
-}
-void runSerial(){
-  // Begin communicate serial
+void comUART(){
+      // Begin communicate serial
+    digitalWrite(D1,HIGH);
     if (mySerial.available()) { 
        temperature = mySerial.read();   
        humidity = mySerial.read();
@@ -158,5 +171,6 @@ void runSerial(){
     Serial.print("MQ7: ");
     int mq7Value = mq7Value0 + mq7Value1*256;
     Serial.println(mq7Value,DEC);
+    digitalWrite(D1,LOW);
 }
 
