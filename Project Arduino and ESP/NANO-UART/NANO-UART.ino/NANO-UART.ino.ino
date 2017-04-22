@@ -63,6 +63,7 @@ byte mq7Value1 = 0;
 void setup() {
     Serial.begin(115200);
     mySerial.begin(115200);
+    pinMode(13,OUTPUT);
     Serial.println("Beginning...");   
        // Set up for DTH11
     dht.begin();
@@ -84,11 +85,12 @@ void loop() {
    readFlameSensor();
    readBH1750();
    readMQ();
-   readUART();
-   delay(500);
+   comUART();
+   delay(700);
 }
 
-void readUART(){
+void comUART(){
+  digitalWrite(13,HIGH);
   delay(10);
    mySerial.write(temperature);
    mySerial.write(humidity);
@@ -104,19 +106,20 @@ void readUART(){
    mySerial.write(mq7Value1);
    mySerial.write(valueW);
    delay(5);
-    if (mySerial.available()) {  
-      valueR = mySerial.read();
-    }
-    mySerial.flush(); // This action will refresh buffer in serial communication
-    valueW--;
-    if(valueW <= 0){
-      valueW = 255;
-    }
-    Serial.print("Count of Server: ");
-    Serial.println(valueR,DEC);   // read it and send it out Serial1 (pins 0 & 1)
-    Serial.print("Count of Arduino: ");
-    Serial.println(valueW);
-    delay(10);
+  if (mySerial.available()) {  
+    valueR = mySerial.read();
+  }
+  mySerial.flush(); // This action will refresh buffer in serial communication
+  digitalWrite(13,LOW);
+  valueW--;
+  if(valueW <= 0){
+    valueW = 255;
+  }
+  Serial.print("Count of Server: ");
+  Serial.println(valueR,DEC);   // read it and send it out Serial1 (pins 0 & 1)
+  Serial.print("Count of Arduino: ");
+  Serial.println(valueW);
+  delay(10);
 }
 void readFlameSensor(){
     flameValue0 = analogRead(FLAME_PIN);
