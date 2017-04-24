@@ -48,6 +48,7 @@ public class NetworkPing {
             String ignoreLine = "";
             ignoreLine = buffer.readLine();
             line = buffer.readLine();
+            Log.d(TAG,"line: "+ line);
             buffer.close();
             reader.close();
             return line;

@@ -123,6 +123,7 @@ public class PingActivity extends AppCompatActivity {
             } else {
                 messageSuccessfull++;
             }
+            Log.d(TAG,"Ping Result: "+ pingResult);
             stringBuilder.append(pingResult +"\n");
             textViewPingResultPingActivity.setText(stringBuilder.toString());
         }

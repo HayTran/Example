@@ -29,7 +29,7 @@ public class DisplayActivity extends AppCompatActivity {
     TextView textViewTime,textViewFlame0,textViewFlame1,textViewHumidity,textViewTemperature,textViewLightIntensity,textViewMQ2,textViewMQ7;
     ImageView imageView;
     Bitmap bitmap;
-    Button btnChangeToPingAcitivy, btnSignOut;
+    Button btnChangeToPingActivity, btnSignOut,btnCheckFCM;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +48,9 @@ public class DisplayActivity extends AppCompatActivity {
         textViewTemperature = (TextView)findViewById(R.id.textViewTemperatureDisplayActivity);
         textViewLightIntensity = (TextView)findViewById(R.id.textViewLightIntensityDisplayActivity);
         imageView = (ImageView)findViewById(R.id.imageViewDisplayActivity);
-        btnChangeToPingAcitivy = (Button)findViewById(R.id.btnChangeToPingActivityDisplayActivity);
+        btnChangeToPingActivity = (Button)findViewById(R.id.btnChangeToPingActivityDisplayActivity);
         btnSignOut = (Button)findViewById(R.id.btnSignOutDisplayActivity);
+        btnCheckFCM = (Button)findViewById(R.id.btnCheckFCMDisplayActivity);
     }
     private void init() {
         // Define instance for firebase connection
@@ -67,12 +68,18 @@ public class DisplayActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        btnChangeToPingAcitivy.setOnClickListener(new View.OnClickListener() {
+        btnChangeToPingActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG,"Display Activity Change To Ping Activity");
                 Intent intent = new Intent(DisplayActivity.this,PingActivity.class);
                 startActivity(intent);
+            }
+        });
+        btnCheckFCM.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new FCMServerThread("Testing from App AT").start();
             }
         });
     }

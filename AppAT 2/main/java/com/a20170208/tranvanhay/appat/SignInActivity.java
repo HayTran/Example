@@ -37,7 +37,6 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         checkStepSignInActivity();
         setContentView(R.layout.activity_signin);
-        Log.d(TAG,"Ngoài vòng if");
         init();
         mapping();
         addControl();
@@ -131,8 +130,9 @@ public class SignInActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            Log.d(TAG,"Sign in successfull");
-                            checkStepSignInActivity();
+                            Toast.makeText(SignInActivity.this, "Sign in successfull", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignInActivity.this,DisplayActivity.class);
+                            startActivity(intent);
                         }else{
                             Toast.makeText(SignInActivity.this,"Sign in failed",Toast.LENGTH_SHORT).show();
                         }
